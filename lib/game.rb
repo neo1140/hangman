@@ -3,13 +3,14 @@ class Game
   attr_reader :guesses, :word, :masked_word, :game_over
 
   # Starts a new game, or loads a saved game
-  def initialize(word = '', guesses = 0, masked_word = '')
+  def initialize(word = '', guesses = 0, masked_word = '', letters_guessed = [])
     @word = word
     @guesses = guesses
     @masked_word = masked_word
     @word = random_word if @word == ''
     @masked_word = word_mask(@word) if @masked_word == ''
     @game_over = false
+    @letters_guessed = letters_guessed
     p @masked_word
   end
 
@@ -40,6 +41,8 @@ class Game
 
   # Checks for correct input, and advances the game
   def game_turn(input)
+    @letters_guessed << input unless @letters_guessed.include?(input)
+    p @letters_guessed
     p @masked_word
     if @word.include?(input)
       update(input)
@@ -60,7 +63,7 @@ def save_game(game)
   Dir.mkdir('saves') unless Dir.exist?('saves')
   puts 'What would you like to name your save game?'
   filename = "saves/#{gets.chomp}"
-  filename = "saves/hangman_#{game.masked_word}.txt" if filename == nil
+  filename = "saves/hangman_#{game.masked_word}.txt" if filename == 'saves/'
   File.open(filename, 'w') do |file|
     file.puts "#{game.word}, #{game.guesses}, #{game.masked_word}"
   end
@@ -69,6 +72,7 @@ def save_game(game)
   game.game_end
 end
 
+# Function for loading the game
 def load_game(save_file_index)
   Dir.children('saves').each_with_index do |save, index|
     if index == save_file_index
@@ -89,8 +93,10 @@ until game.game_over
     puts 'Enter the number of the game you would like to load!'
     Dir.children('saves').each_with_index { |save, index| puts "#{index + 1}: #{save.delete('.txt')}" }
     game = load_game(gets.chomp.to_i - 1)
-  else
+  elsif input.chomp.downcase =~ /^[a-z]$/
     game.game_turn(input)
     p game
+  else
+    puts 'Invalid input!'
   end
 end
