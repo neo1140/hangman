@@ -55,9 +55,12 @@ class Game
   end
 end
 
+# Function for saving the game
 def save_game(game)
   Dir.mkdir('saves') unless Dir.exist?('saves')
-  filename = "saves/hangman_#{game.masked_word}.txt"
+  puts 'What would you like to name your save game?'
+  filename = "saves/#{gets.chomp}"
+  filename = "saves/hangman_#{game.masked_word}.txt" if filename == nil
   File.open(filename, 'w') do |file|
     file.puts "#{game.word}, #{game.guesses}, #{game.masked_word}"
   end
@@ -66,11 +69,26 @@ def save_game(game)
   game.game_end
 end
 
+def load_game(save_file_index)
+  Dir.children('saves').each_with_index do |save, index|
+    if index == save_file_index
+      File.open("saves/#{save}", 'r') do |file|
+        data = file.read.chomp.split(', ')
+        return game = Game.new(data[0], data[1].to_i, data[2])
+      end
+    end
+  end
+end
+
 game = Game.new
 until game.game_over
   input = gets.chomp
   if input == 'save'
     save_game(game)
+  elsif input == 'load'
+    puts 'Enter the number of the game you would like to load!'
+    Dir.children('saves').each_with_index { |save, index| puts "#{index + 1}: #{save.delete('.txt')}" }
+    game = load_game(gets.chomp.to_i - 1)
   else
     game.game_turn(input)
     p game
