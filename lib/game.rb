@@ -34,14 +34,11 @@ class Game
       word_array[index] = letter
       @masked_word = word_array.join
     end
-    p @masked_word
   end
 
   # Checks for correct input, and advances the game
   def game_turn(input)
-    @letters_guessed << input unless @letters_guessed.include?(input)
-    p @letters_guessed
-    p @masked_word
+    @letters_guessed << input
     if @word.include?(input)
       update(input)
     else
@@ -80,9 +77,9 @@ class GameTree
     if @game.game_over
       terminate_game
     else
-      puts 'Enter a letter to play, or enter "save/load" to save or load your game!'
       puts @game.masked_word
-      puts "The letters you've guessed so far are #{@game.letters_guessed} you have #{10 - @game.guesses} guesses left!"
+      puts "The letters you've guessed so far are\n#{@game.letters_guessed}\nYou have #{10 - @game.guesses} guesses left!"
+      puts 'Enter a letter to play, or enter "save/load" to save or load your game!'
       input = gets.chomp.downcase
       if input == 'save'
         save_game
@@ -125,8 +122,7 @@ class GameTree
       next unless index == save_file_index
 
       File.open("saves/#{save}", 'r') do |file|
-        @game = YAML.load file
-        p @game
+        @game = YAML.safe_load(file, [Game])
         choice
       end
     end
