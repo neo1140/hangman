@@ -1,3 +1,4 @@
+require 'yaml'
 # Class for handling game decicions
 class Game
   attr_reader :guesses, :word, :masked_word, :game_over, :letters_guessed
@@ -106,7 +107,7 @@ class GameTree
     filename = "saves/#{gets.chomp}"
     filename = "saves/hangman_#{@game.masked_word}.txt" if filename == 'saves/'
     File.open(filename, 'w') do |file|
-      file.puts "#{@game.word},  #{@game.guesses},  #{@game.masked_word},  #{@game.letters_guessed}"
+      file.puts YAML.dump(@game)
     end
     puts 'Game saved! Thanks for playing!'
     @game.game_end
@@ -126,13 +127,17 @@ class GameTree
       next unless index == save_file_index
 
       File.open("saves/#{save}", 'r') do |file|
-        data = file.read.chomp.split(',  ')
-        @game = Game.new(data[0], data[1].to_i, data[2], data[3])
+        @game = YAML.load file
+        p @game
         choice
       end
     end
   end
+
+  # Called when the game is over, checks game state and gives feedback to player
   def self.terminate_game
+    puts 'You win! congratulations!!' if @game.masked_word == @game.word
+    puts "You lose, the word was #{@game.word}\nI\'m sorry, give it another try!" if @game.guesses == 10
     puts 'Thanks for playing!'
   end
 end
