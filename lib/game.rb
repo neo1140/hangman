@@ -81,17 +81,14 @@ class GameTree
       puts "The letters you've guessed so far are\n#{@game.letters_guessed}\nYou have #{10 - @game.guesses} guesses left!"
       puts 'Enter a letter to play, or enter "save/load" to save or load your game!'
       input = gets.chomp.downcase
-      if input == 'save'
-        save_game
-      elsif input == 'load'
-        save_select
-      elsif input =~ /^[a-z]$/ && !@game.letters_guessed.include?(input)
+      save_game if input == 'save'
+      save_select if input == 'load'
+      if input =~ /^[a-z]$/ && !@game.letters_guessed.include?(input)
         @game.game_turn(input)
-        choice
       else
         puts 'Invalid input! Please enter an unused letter, or "save/load"'
-        choice
       end
+      choice
     end
   end
 
@@ -104,8 +101,8 @@ class GameTree
     File.open(filename, 'w') do |file|
       file.puts YAML.dump(@game)
     end
-    puts 'Game saved! Thanks for playing!'
-    @game.game_end
+    puts "Game saved as #{filename}"
+    terminate_game
   end
 
   # Function called to select which game to load
@@ -131,7 +128,10 @@ class GameTree
   # Called when the game is over, checks game state and gives feedback to player
   def self.terminate_game
     puts 'You win! congratulations!!' if @game.masked_word == @game.word
-    puts "You lose, the word was #{@game.word}\nI\'m sorry, give it another try!" if @game.guesses == 10
+    puts "You lose, the word was #{@game.word}\nI\'m sorry, give it another try!\n" if @game.guesses == 10
+    puts 'Would you like to play again? enter "y" if you do!'
+    input = gets.chomp.downcase
+    GameTree.start if input == 'y'
     puts 'Thanks for playing!'
   end
 end
