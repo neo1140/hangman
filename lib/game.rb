@@ -4,14 +4,12 @@ class Game
   attr_reader :guesses, :word, :masked_word, :game_over, :letters_guessed
 
   # Starts a new game, or loads a saved game
-  def initialize(word = '', guesses = 0, masked_word = '', letters_guessed = [])
-    @word = word
-    @guesses = guesses
-    @masked_word = masked_word
-    @word = random_word if @word == ''
-    @masked_word = word_mask(@word) if @masked_word == ''
+  def initialize
+    @guesses = 0
+    @word = random_word
+    @masked_word = word_mask(@word)
     @game_over = false
-    @letters_guessed = letters_guessed
+    @letters_guessed = []
   end
 
   # Fetches a random word from the dictionary file
